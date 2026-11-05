@@ -25,3 +25,12 @@ Doris 官方参数里 `-Wno-unused-but-set-variable` **只在 clang 分支添加
 
 - 必须用 `PORTABLE=1`（否则会按本地 CPU 生成指令）。
 - RocksDB 5.14 很老，`-include cstdint` 是必需的。
+
+## 更新（2026-11-04）
+
+Olap 阶段发现 Doris 的 `build_rocksdb()` **只拷了 `librocksdb.a`，头文件要另外手动拷**：
+
+    mkdir -p $PREFIX/include && cp -r include/rocksdb $PREFIX/include/
+
+漏了会报 `rocksdb/iterator.h：没有那个文件或目录`。
+最终 `doris_be` 全量编译 + 链接成功（0 undefined symbol），rocksdb 是其中最大的静态库之一。
